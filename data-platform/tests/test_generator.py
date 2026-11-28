@@ -207,3 +207,55 @@ def test_acknowledgments_start_on_ack_start_and_cover_every_document():
     # 2026-11-28 is a Saturday: only drivers (app) acknowledge; staff start Monday
     assert {r["channel"] for r in out[days[1]]["hris_policy_acknowledgments"]} == {"driver_app"}
     assert _run([ACK_START])[ACK_START]["hris_policy_acknowledgments"] == out[days[1]]["hris_policy_acknowledgments"]
+
+
+# ---- training and early activation (0.6.0) ----
+
+def test_training_starts_on_launch_with_the_right_course_per_person():
+    from ect_platform.config import TRAINING_START
+    days = [TRAINING_START - timedelta(days=1), TRAINING_START, TRAINING_START + timedelta(days=1)]
+    sim, out, day = Simulation(), {}, EPOCH
+    while day <= max(days):
+        b = sim.step(day, emit=day in days)
+        if b:
+            out[day] = b
+        day += timedelta(days=1)
+    assert not out[days[0]].get("hris_training_completions")
+    rows = out[days[1]]["hris_training_completions"] + out[days[2]]["hris_training_completions"]
+    assert rows and all(80 <= r["score"] <= 100 for r in rows)
+    for r in rows:
+        driver = sim.employees[r["employee_id"]]["department"] == "Driver Operations"
+        assert (r["course_id"] == "TRN-02") == driver
+
+
+def test_early_activation_is_planted_only_from_hr_defects_start():
+    from ect_platform.config import HR_DEFECTS_START
+    sim, day, planted = Simulation(), EPOCH, []
+    while day <= HR_DEFECTS_START + timedelta(days=120):
+        b = sim.step(day, emit=day >= HR_DEFECTS_START - timedelta(days=30))
+        if b:
+            planted += [(day, d["record_id"]) for d in b["gov_planted_defects"]
+                        if d["defect_code"] == "driver_activated_before_check"]
+        day += timedelta(days=1)
+    assert planted and all(d >= HR_DEFECTS_START for d, _ in planted)
+    for _, did in planted:   # stays active with the check pending: the result is never recorded
+        assert sim.drivers[did]["background_check_status"] == "pending"
+
+
+def test_disposed_records_are_never_written_again(tmp_path):
+    from ect_platform.generate import disposed_records, write_batch
+    log = tmp_path / "disposal_log.csv"
+    log.write_text("disposal_id,scope,table_name,record_id\nDSP-1,record,app_riders,RDR10001\n"
+                   "DSP-2,column,hris_employees,\n")
+    disposed = disposed_records(log)
+    assert disposed == {("app_riders", "RDR10001")}
+    batch = {"app_riders": [{"rider_id": "RDR10001"}, {"rider_id": "RDR10002"}]}
+    manifest = write_batch(EPOCH, batch, tmp_path, with_trips=False, disposed=disposed)
+    assert manifest["tables"]["app_riders"]["rows"] == 1
+    assert "RDR10001" not in (tmp_path / EPOCH.isoformat() / "app_riders.jsonl").read_text()
+    assert disposed_records() == set()   # the real log has no record-level entries yet
+
+
+def test_build_tools_manifest_is_current():
+    from ect_platform import manifest
+    assert manifest.main(["--check"]) == 0, "run: uv run ect-manifest"

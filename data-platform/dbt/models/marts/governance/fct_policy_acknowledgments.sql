@@ -11,7 +11,10 @@
 -- revision (e.g. POL-07 1.0 -> 1.1) keeps earlier acknowledgments. Limitation: assigned_on uses
 -- the register's approval_date, which is the current version's date; if a minor revision is
 -- approved on a later date, due dates move with it.
--- The yearly re-acknowledgment cycle is not modelled yet (first one falls due Nov 2027).
+-- Yearly re-acknowledgment (POL-01 statement 6; POL-14 statement 7; GOV-107): an acknowledgment counts
+-- for 12 months. next_due_on is 12 months after it; after that the row is 'expired' until the person
+-- acknowledges again (a later acknowledgment of the same major version restarts the year). The first
+-- yearly cycle falls due in November 2027.
 -- DOC-04 (monitoring notice) is included too. Staff acknowledge it by commenting on blog 950312;
 -- drivers acknowledge it in the ECT Driver app (simulated).
 -- Acknowledgments received: the policy_acknowledgments seed (recorded by hand: approvers and reviewers
@@ -43,6 +46,7 @@ required as (
 received as (
     select employee_id, doc_id, split(doc_version, '.')[offset(0)] as major_version,
            min(acknowledged_on) as acknowledged_on,
+           max(acknowledged_on) as last_acknowledged_on,
            string_agg(evidence, '; ' order by acknowledged_on) as evidence
     from (
         select employee_id, doc_id, doc_version, acknowledged_on, evidence
@@ -92,8 +96,11 @@ select
     d.assigned_on,
     d.due_on,
     a.acknowledged_on,
+    a.last_acknowledged_on,
+    date_add(a.last_acknowledged_on, interval 12 month) as next_due_on,
     a.evidence,
     case
+        when a.acknowledged_on is not null and date_add(a.last_acknowledged_on, interval 12 month) < current_date() then 'expired'
         when a.acknowledged_on is not null then 'acknowledged'
         when current_date() > d.due_on then 'overdue'
         else 'pending'

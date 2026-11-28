@@ -1,0 +1,5 @@
+script_id,script_url,purpose,owner,approved_by,approved_on,integrity_hash,last_change_check_on
+SCR-01,https://js.payments-processor.example/v3/card-entry.js,Payment processor's card-entry component (the only script that touches card numbers),vp-engineering,ciso,2026-11-26,yes,2026-11-27
+SCR-02,https://app.empirecitytaxi.example/static/checkout.7f3a.js,ECT checkout page logic: shows the fare and calls the card-entry component,vp-engineering,ciso,2026-11-26,yes,2026-11-27
+SCR-03,https://app.empirecitytaxi.example/static/i18n.2c1d.js,Translations for the checkout page,vp-engineering,ciso,2026-11-26,yes,2026-11-27
+SCR-04,https://cdn.analytics-vendor.example/tag.js,"Marketing analytics tag, added by Marketing without approval; found by the 2026-11-27 check",vp-marketing,,,no,2026-11-27

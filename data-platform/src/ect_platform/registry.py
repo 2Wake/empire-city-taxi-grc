@@ -144,6 +144,16 @@ TABLES = {
             ("acknowledged_at", "TIMESTAMP"), ("channel", "STRING"), ("evidence", "STRING"),
         ],
     },
+    "hris_training_completions": {
+        "description": "SIMULATED. Security awareness training completions from the Confluence course (from generator "
+                       "0.6.0): one row per passed quiz. TRN-01 staff course, TRN-02 driver module, TRN-03 role "
+                       "training for sensitive-access roles (POL-14 section 5.3).",
+        "labels": _labels("people", "internal", "hris", pii=False, retention="7y"),
+        "columns": [
+            ("completion_id", "STRING"), ("employee_id", "STRING"), ("course_id", "STRING"),
+            ("course_version", "STRING"), ("completed_at", "TIMESTAMP"), ("score", "INT64"),
+        ],
+    },
     "gov_planted_defects": {
         "description": "ANSWER KEY. Every data-quality defect the generator planted on purpose. Used to score "
                        "how many planted defects the data-quality checks catch; checks must not read it.",

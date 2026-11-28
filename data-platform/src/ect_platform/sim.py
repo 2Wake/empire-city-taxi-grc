@@ -16,7 +16,8 @@ from zoneinfo import ZoneInfo
 
 from . import fakes
 from .config import (ACCESS_POLICY_PATH, ACK_DOCS, ACK_NEVER, ACK_START, ACK_WEIGHTS, APP_BOOKED_SHARE,
-                     DEFECT_RATES as DR, EPOCH, RATES,
+                     DEFECT_RATES as DR, EPOCH, HR_DEFECTS_START, RATES, TRAINING_COURSES, TRAINING_DEADLINE,
+                     TRAINING_NEVER, TRAINING_NEW_WEIGHTS, TRAINING_START, TRAINING_WEEK_WEIGHTS,
                      ROSTER_CORRECTIONS, ROSTER_PATH, SURVEY_SHARE, tlc_date_for)
 from .fakes import poisson, rng
 
@@ -97,6 +98,7 @@ class Simulation:
         self.rider_emails: list[str] = []
         self.employee_emails: list[str] = []
         self.ack_plan: dict[str, date | None] = {}   # employee_id -> day they acknowledge (None: never)
+        self.training_plan: dict[tuple[str, str], date | None] = {}   # (employee_id, course) -> day done
         self.day: date | None = None
         self._out = None
         self._defects = None
@@ -145,6 +147,8 @@ class Simulation:
             self._finance(rng("finance", day))
             if day >= ACK_START:
                 self._acknowledgments()
+            if day >= TRAINING_START:
+                self._training()
         if not emit:
             return None
         if tlc_rows is not None:
@@ -194,6 +198,53 @@ class Simulation:
                 self._touch("hris_policy_acknowledgments", f"{eid}|{doc_id}", {
                     "ack_id": f"ACK-{eid}-{doc_id}-{major}", "employee_id": eid, "doc_id": doc_id,
                     "doc_version": version, "acknowledged_at": at, "channel": channel, "evidence": evidence})
+
+    # ------------------------------------------------------------------ security awareness training
+    @staticmethod
+    def _add_business_days(start: date, k: int) -> date:
+        day = start
+        while day.weekday() >= 5:
+            day += timedelta(days=1)
+        while k:
+            day += timedelta(days=1)
+            if day.weekday() < 5:
+                k -= 1
+        return day
+
+    def _training_day(self, eid: str, course: str, assigned: date) -> date | None:
+        r = rng("training", eid, course)
+        if assigned <= TRAINING_START:     # the launch campaign: spread over weeks to TRAINING_DEADLINE
+            w = r.choices(range(len(TRAINING_WEEK_WEIGHTS) + 1), weights=[*TRAINING_WEEK_WEIGHTS, TRAINING_NEVER])[0]
+            if w == len(TRAINING_WEEK_WEIGHTS):
+                return None
+            day = self._add_business_days(TRAINING_START, 5 * w + r.randint(0, 4))
+            return min(day, TRAINING_DEADLINE) if w <= 12 else day
+        k = r.choices(range(len(TRAINING_NEW_WEIGHTS) + 1), weights=[*TRAINING_NEW_WEIGHTS, TRAINING_NEVER])[0]
+        return None if k == len(TRAINING_NEW_WEIGHTS) else self._add_business_days(assigned, k)
+
+    def _training(self) -> None:
+        """Each active employee takes TRN-01 (staff) or TRN-02 (drivers); staff with an active `raw` or
+        `staging` grant also take TRN-03. A completion is one passed quiz."""
+        sensitive = {g["employee_id"] for g in self.grants.values()
+                     if g["grant_status"] == "active" and g["dataset"] in ("raw", "staging")}
+        for eid, emp in self.employees.items():
+            if emp["employment_status"] != "active":
+                continue
+            driver = emp["department"] == "Driver Operations"
+            courses = ["TRN-02"] if driver else ["TRN-01"] + (["TRN-03"] if eid in sensitive else [])
+            for course in courses:
+                key = (eid, course)
+                if key not in self.training_plan:
+                    assigned = max(TRAINING_START, date.fromisoformat(emp["hired_at"]), self.day)
+                    self.training_plan[key] = self._training_day(eid, course, assigned)
+                if self.training_plan[key] != self.day:
+                    continue
+                r = rng("training", eid, course, self.day)
+                self._touch("hris_training_completions", f"{eid}|{course}", {
+                    "completion_id": f"TRC-{eid}-{course}-{self.day:%Y%m%d}", "employee_id": eid,
+                    "course_id": course, "course_version": TRAINING_COURSES[course],
+                    "completed_at": self._ts(r, lo=5, hi=23) if driver else self._ts(r, lo=8, hi=19),
+                    "score": r.randint(80, 100)})
 
     # ------------------------------------------------------------------ people (HR + fleet)
     def _new_employee(self, r, hired: date, driver: bool, named: dict | None = None) -> dict:
@@ -286,7 +337,16 @@ class Simulation:
             background, status = self._background_status(r, did, "clear"), "active"
         else:
             background, status = "pending", "onboarding"
-            self.agenda[self.day + timedelta(days=r.randint(3, 12))].append(("background_result", did))
+            result_day = self.day + timedelta(days=r.randint(3, 12))
+            # Planted (0.6.0): activated before the check cleared, and the result is never recorded.
+            # Own random stream, so no other value changes.
+            early = (self.day >= HR_DEFECTS_START
+                     and rng("driver-early-activation", did).random() < DR["driver_activated_before_check"])
+            if early:
+                status = "active"
+                self._log_defect("fleet_drivers", did, "background_check_status", "driver_activated_before_check")
+            else:
+                self.agenda[result_day].append(("background_result", did))
         emp["manager_id"] = self.department_heads.get("Driver Operations")
         self.drivers[did] = {
             "driver_id": did, "employee_id": emp["employee_id"], "first_name": emp["first_name"],

@@ -1,0 +1,4 @@
+course_id,title,audience,version,launched_on,refresher_months,pass_mark,confluence_page
+TRN-01,Security Awareness (staff),All staff except drivers,1.0,2026-12-01,12,80,1015888
+TRN-02,Security Awareness: Driver Module,Drivers (Driver Operations),1.0,2026-12-01,12,80,1015904
+TRN-03,Role Training: Sensitive Access and Payment-Page Security,Staff with raw or staging access (sensitive-access roles),1.0,2026-12-01,12,80,1114166

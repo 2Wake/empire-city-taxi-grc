@@ -214,13 +214,87 @@ models:
           name: acc_07_iam_access_grants_wrong_approver
           arguments: {rule_id: ACC-07}
           config: {severity: warn, meta: {rule_id: ACC-07, dimension: Access, origin: planted}}
+      - rule_has_no_findings:
+          name: hr_01_active_driver_without_cleared_check
+          arguments: {rule_id: HR-01}
+          config: {severity: warn, meta: {rule_id: HR-01, dimension: Compliance, origin: planted}}
+      - rule_has_no_findings:
+          name: hr_02_sensitive_access_without_screening
+          arguments: {rule_id: HR-02}
+          config: {severity: warn, meta: {rule_id: HR-02, dimension: Compliance, origin: control}}
+      - rule_has_no_findings:
+          name: hr_03_no_confidentiality_terms
+          arguments: {rule_id: HR-03}
+          config: {severity: warn, meta: {rule_id: HR-03, dimension: Compliance, origin: control}}
+      - rule_has_no_findings:
+          name: pci_01_terminal_inspection_overdue
+          arguments: {rule_id: PCI-01}
+          config: {severity: warn, meta: {rule_id: PCI-01, dimension: Compliance, origin: control}}
+      - rule_has_no_findings:
+          name: pci_02_unapproved_payment_page_script
+          arguments: {rule_id: PCI-02}
+          config: {severity: warn, meta: {rule_id: PCI-02, dimension: Compliance, origin: control}}
+      - rule_has_no_findings:
+          name: pci_03_payment_page_change_check_late
+          arguments: {rule_id: PCI-03}
+          config: {severity: warn, meta: {rule_id: PCI-03, dimension: Compliance, origin: control}}
+      - rule_has_no_findings:
+          name: hr_04_training_overdue_over_30_days
+          arguments: {rule_id: HR-04}
+          config: {severity: warn, meta: {rule_id: HR-04, dimension: Compliance, origin: control}}
+  - name: fct_compliance_findings_daily
+    description: >
+      History of compliance findings (ACC, HR, PCI, CLS), one row per finding per day seen (incremental,
+      one partition per run date). Feeds fct_findings_tracker (GOV-111).
+    config: {labels: {domain: governance, layer: marts, data_owner: data-governance-manager, data_steward: data-governance-manager, classification: internal, source_system: derived, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}}
+  - name: fct_findings_tracker
+    description: >
+      Every compliance finding with its owner, steward, action, first seen, due date and status (open,
+      overdue, resolved). Routing from the finding_routing seed; classification findings go to the column's
+      own owner and steward. POL-02 st. 19, POL-03 compliance st. 1-2 (GOV-111).
+    config: {labels: {domain: governance, layer: marts, data_owner: data-governance-manager, data_steward: data-governance-manager, classification: internal, source_system: derived, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}}
+    columns:
+      - name: finding_key
+        data_tests: [unique, not_null]
+      - name: status
+        data_tests:
+          - accepted_values: {arguments: {values: ['open', 'overdue', 'resolved']}}
+  - name: fct_policy_review_status
+    description: >
+      Monthly overdue-review check of the Policy Register (STD-01 section 9; GOV-112): each document's next
+      review date and whether the review is overdue, due within 60 days, current, or not yet approved.
+    config: {labels: {domain: governance, layer: marts, data_owner: ciso, data_steward: data-governance-manager, classification: internal, source_system: derived, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}}
+    columns:
+      - name: doc_id
+        data_tests: [unique, not_null]
+      - name: review_status
+        data_tests:
+          - accepted_values: {arguments: {values: ['overdue', 'due_within_60_days', 'current', 'not_approved']}}
+  - name: fct_training_completions
+    description: >
+      SIMULATED training. One row per active employee per required security training course (POL-14
+      section 5.3; GOV-110): TRN-01 staff, TRN-02 drivers, TRN-03 staff with raw or staging access. Due by
+      2027-02-24 for staff employed when the courses opened, 10 business days after starting for later
+      hires, and on the day of access for new TRN-03 assignments. Status, days overdue and who the case
+      is escalated to (manager and VP People; the CISO after 30 days, decision 2(b)). Repeats yearly.
+    config: {labels: {domain: people, layer: marts, data_owner: vp-people, data_steward: hr-data-steward, classification: internal, source_system: derived, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}}
+    columns:
+      - name: training_key
+        data_tests: [unique, not_null]
+      - name: course_id
+        data_tests:
+          - accepted_values: {arguments: {values: ['TRN-01', 'TRN-02', 'TRN-03']}}
+      - name: training_status
+        data_tests:
+          - accepted_values: {arguments: {values: ['pending', 'completed', 'overdue', 'expired']}}
   - name: fct_policy_acknowledgments
     description: >
       SIMULATED acknowledgments. One row per active employee (drivers included) per approved policy
       version, plus DOC-04 Electronic Monitoring Notice: when it was assigned, when it is due (10 business days after the later of approval
       and hire; POL-01 statement 6, STD-01 section 11), whether and when it was acknowledged, and
       the evidence. Derived daily from the Policy Register and HR, so new hires and leavers flow in
-      automatically. Acknowledgments received come from the policy_acknowledgments seed and, from
+      automatically. Each acknowledgment counts for 12 months (next_due_on); after that the row is
+      'expired' until acknowledged again (yearly cycle, POL-01 st. 6, GOV-107). Acknowledgments received come from the policy_acknowledgments seed and, from
       2026-11-28, HR's acknowledgment feed (stg_hris_policy_acknowledgments, simulated); the earliest counts.
     config: {labels: {domain: governance, layer: marts, data_owner: ciso, data_steward: data-governance-manager, classification: internal, source_system: derived, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}}
     columns:
@@ -251,11 +325,11 @@ models:
       - name: evidence
         description: Where the acknowledgment is shown (e.g. a Confluence comment ID).
       - name: ack_status
-        description: acknowledged, pending (not yet due) or overdue (past due_on, not acknowledged).
+        description: acknowledged, pending (not yet due), overdue (past due_on, not acknowledged) or expired (acknowledged more than 12 months ago; yearly cycle).
         data_tests:
           - not_null
           - accepted_values:
-              arguments: {values: [acknowledged, pending, overdue]}
+              arguments: {values: [acknowledged, pending, overdue, expired]}
       - name: on_time
         description: True when acknowledged on or before due_on.
 

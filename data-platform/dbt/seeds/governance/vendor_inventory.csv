@@ -1,0 +1,15 @@
+vendor_id,vendor,business_owner,highest_data,tier,tpsp,due_diligence_done,simulated,next_review
+VND-01,Rider-app payment processor,cfo,secret,critical,true,false,true,2027-02-28
+VND-02,In-cab payment provider,vp-driver-operations,secret,critical,true,false,true,2027-02-28
+VND-03,Payroll provider,vp-people,secret,critical,false,false,true,2027-02-28
+VND-04,Driver payout provider,cfo,secret,critical,false,false,true,2027-02-28
+VND-05,Background-check provider,vp-people,secret,critical,false,false,true,2027-02-28
+VND-06,Identity provider (SSO and MFA),ciso,confidential,critical,false,false,true,2027-02-28
+VND-07,Google Cloud (BigQuery),vp-engineering,confidential,high,false,false,false,2027-02-28
+VND-08,GitHub (repository and Actions),vp-engineering,confidential,high,false,false,false,2027-02-28
+VND-09,Atlassian (Jira and Confluence),ciso,internal,high,false,false,false,2027-02-28
+VND-10,Looker Studio,cdo,sensitive,high,false,false,false,2027-02-28
+VND-11,Support-ticketing SaaS,vp-operations,confidential,high,false,false,true,2027-02-28
+VND-12,Mapping SaaS,vp-engineering,sensitive,high,false,false,true,2027-02-28
+VND-13,Collate (not connected),cdo,none,high,false,false,false,
+VND-14,AI tools on DOC-02,ciso,public,low,false,true,false,2028-11-25

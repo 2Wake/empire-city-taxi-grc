@@ -533,3 +533,20 @@ staging,stg_hris_policy_acknowledgments,evidence,Internal,Operational,inherited,
 staging,stg_hris_policy_acknowledgments,_batch_date,Internal,Pipeline metadata,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
 staging,stg_hris_policy_acknowledgments,_generator_version,Internal,Pipeline metadata,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
 staging,stg_hris_policy_acknowledgments,acknowledged_on,Internal,Operational,derived,vp-people,hr-data-steward,proposed,hr-data-steward,,,New York date of acknowledged_at
+raw,hris_training_completions,completion_id,Internal,Identifier,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Surrogate key
+raw,hris_training_completions,employee_id,Internal,Identifier (FK),source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Links to employees
+raw,hris_training_completions,course_id,Internal,Reference,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Training course
+raw,hris_training_completions,course_version,Internal,Reference,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Course version completed
+raw,hris_training_completions,completed_at,Internal,Operational,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,When the quiz was passed
+raw,hris_training_completions,score,Internal,Operational,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Quiz score; not a performance rating
+raw,hris_training_completions,_batch_date,Internal,Pipeline metadata,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
+raw,hris_training_completions,_generator_version,Internal,Pipeline metadata,source,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
+staging,stg_hris_training_completions,completion_id,Internal,Identifier,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Surrogate key
+staging,stg_hris_training_completions,employee_id,Internal,Identifier (FK),inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Links to employees
+staging,stg_hris_training_completions,course_id,Internal,Reference,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Training course
+staging,stg_hris_training_completions,course_version,Internal,Reference,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Course version completed
+staging,stg_hris_training_completions,completed_at,Internal,Operational,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,When the quiz was passed
+staging,stg_hris_training_completions,score,Internal,Operational,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Quiz score; not a performance rating
+staging,stg_hris_training_completions,_batch_date,Internal,Pipeline metadata,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
+staging,stg_hris_training_completions,_generator_version,Internal,Pipeline metadata,inherited,vp-people,hr-data-steward,proposed,hr-data-steward,,,Load metadata
+staging,stg_hris_training_completions,completed_on,Internal,Operational,derived,vp-people,hr-data-steward,proposed,hr-data-steward,,,New York date of completed_at

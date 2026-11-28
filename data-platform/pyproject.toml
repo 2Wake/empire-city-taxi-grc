@@ -21,6 +21,8 @@ ect-access-check = "ect_platform.access_check:main"
 ect-security-review = "ect_platform.security_review:main"
 ect-watchdog = "ect_platform.watchdog:main"
 ect-ack-summary = "ect_platform.acknowledgments:main"
+ect-manifest = "ect_platform.manifest:main"
+ect-config-check = "ect_platform.config_check:main"
 
 [build-system]
 requires = ["uv_build>=0.13.9,<0.14.0"]

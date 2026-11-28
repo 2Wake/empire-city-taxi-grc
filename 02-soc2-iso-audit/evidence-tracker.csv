@@ -17,8 +17,8 @@ PBC-015,VM-01,Monthly scan trend and remediation-SLA metrics,Scan report,Securit
 PBC-016,VM-02,Annual penetration test report and remediation tracker,Report,GRC Lead,Annual,FY2026,2026-06-30,Collected,Yes,All high findings closed
 PBC-017,IR-01,IR plan and tabletop after-action report,Document,Security Eng,Annual,FY2026,2026-05-20,Collected,Yes,Tabletop held May 2026
 PBC-018,IR-02,Breach-notification procedure and contact matrix,Document,GRC Lead,Annual,FY2026,2026-05-20,Collected,Yes,72h SLA documented
-PBC-019,BC-01,BC/DR plan with RTO/RPO and failover test results,Document,Platform/SRE,Annual,FY2026,2026-08-15,Collected,Exception,DR test partial; F-04
-PBC-020,BC-02,Backup config and quarterly restore-test logs,System export,Platform/SRE,Quarterly,FY2026,2026-10-02,Collected,Yes,Restores within RTO
+PBC-019,BC-01,BC/DR plan with RTO/RPO and recovery test results,Document,Platform/SRE,Annual,FY2026,,Not collected,No,"Corrected 2026-11-28 (GOV-163): ECT has no DR region or failover (POL-15 v1.0), so the earlier failover-test entry was not supported. BIA and BC/DR plan: GOV-164. F-04"
+PBC-020,BC-02,Rebuild runbook and restore-test record,Document,Platform/SRE,Annual,FY2026,2026-11-28,Collected,No,"Corrected 2026-11-28 (GOV-163): no restore test existed before 2026-11-28, so the earlier entry was not supported (F28). First test: 3 sample dates, 8,107 rows matched raw exactly, about 2 minutes against an RTO of 2 business days. data-platform/docs/rebuild-runbook.md; data-platform/recovery-tests/2026-11-28-rebuild-test.md"
 PBC-021,DP-01,Data classification standard and catalog tag coverage,Document/export,GRC Lead,Annual,FY2026,2026-09-30,Collected,Exception,Tag coverage 78%; F-01
 PBC-022,DP-02,Retention schedule and purge-job logs,Document,GRC Lead,Annual,FY2026,,Not started,No,Control not yet implemented; F-01
 PBC-023,PRV-01,Privacy notice DSAR log and ROPA,Document,Privacy/Legal,Annual,FY2026,2026-07-10,Collected,Yes,DSAR SLA met

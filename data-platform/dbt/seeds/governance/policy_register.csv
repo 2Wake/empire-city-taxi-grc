@@ -3,7 +3,13 @@ STD-01,Policy Management Standard,standard,ciso,ciso,approved,2.0,2026-11-24,202
 STD-02,Data Catalog & Metadata Standard,standard,cdo,data-governance-council,draft,0.3,,,GOV-166,786433
 DOC-01,PCI DSS Scope & Cardholder Data Flow,supporting_document,ciso,ciso,approved,2.0,2026-11-25,2027-11-25,GOV-2,425996
 DOC-02,Approved Tools List,supporting_document,ciso,ciso,approved,2.0,2026-11-25,2027-11-25,GOV-76,458876
+DOC-03,Vendor Inventory,supporting_document,ciso,ciso,approved,1.0,2026-11-28,2027-11-28,GOV-154,1015920
 DOC-04,Electronic Monitoring Notice,supporting_document,vp-people,general-counsel,approved,1.0,2026-11-28,2027-11-28,GOV-108,1015833
+DOC-05,Cryptography Inventory,supporting_document,ciso,ciso,approved,1.0,2026-11-28,2027-11-28,GOV-155,1048609
+DOC-06,Obligations Register,supporting_document,general-counsel,general-counsel;ciso,approved,1.0,2026-11-28,2027-11-28,GOV-118,950349
+DOC-07,Business Impact Analysis,supporting_document,vp-operations,vp-operations,approved,1.0,2026-11-28,2027-11-28,GOV-164,950369
+DOC-08,BC/DR Plan,supporting_document,vp-operations,vp-operations,approved,1.0,2026-11-28,2027-11-28,GOV-164,1015944
+DOC-09,Targeted Risk Analyses,supporting_document,ciso,ciso,approved,1.0,2026-11-28,2027-11-28,GOV-117,1114232
 POL-01,Information Security Policy,policy,ciso,ceo,approved,1.2,2026-11-24,2027-11-24,GOV-4,491531
 POL-02,Access Control Policy,policy,ciso,ciso,approved,2.0,2026-11-25,2027-11-25,GOV-5,557061
 POL-03,Data Classification & Handling Policy,policy,cdo,cdo,approved,2.0,2026-11-25,2027-11-25,GOV-6,426094
@@ -12,7 +18,7 @@ POL-05,Acceptable Use Policy,policy,vp-people,vp-people;ciso,approved,1.1,2026-1
 POL-06,Risk Management Policy,policy,ciso,ciso,approved,1.0,2026-11-24,2027-11-24,GOV-9,557136
 POL-07,Change Management Policy,policy,vp-engineering,vp-engineering,approved,1.1,2026-11-24,2027-11-24,GOV-10,557087
 POL-08,Incident Response Policy,policy,ciso,ciso,approved,1.2,2026-11-24,2027-11-24,GOV-11,458805
-POL-09,Logging & Monitoring Policy,policy,ciso,ciso,approved,1.0,2026-11-25,2027-11-25,GOV-12,557400
+POL-09,Logging & Monitoring Policy,policy,ciso,ciso,approved,1.1,2026-11-25,2027-11-25,GOV-12,557400
 POL-10,Vulnerability & Patch Management Policy,policy,ciso,ciso,approved,1.0,2026-11-25,2027-11-25,GOV-13,458990
 POL-11,Encryption & Key Management Policy,policy,ciso,ciso,approved,1.0,2026-11-25,2027-11-25,GOV-14,557358
 POL-12,Vendor & Third-Party Risk Management Policy,policy,ciso,ciso,approved,1.0,2026-11-25,2027-11-25,GOV-15,426423

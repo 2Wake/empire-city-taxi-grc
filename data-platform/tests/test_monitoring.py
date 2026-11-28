@@ -246,3 +246,30 @@ def test_ack_summary_lines_and_final_count(tmp_path, monkeypatch):
     text = "\n".join(ack.record_lines(path))
     assert "- People: 472 of 527 done, 55 left, 55 overdue" in text and "- Final: Deadline" in text
     assert "Not counted" in "\n".join(ack.record_lines(tmp_path / "missing.json"))
+
+
+# ---- configuration check ----
+
+def test_config_check_rules():
+    from ect_platform import config_check as cc
+    policy = {"bindings": [
+        {"role": "roles/owner", "members": ["user:" + OWNER]},
+        {"role": "roles/editor", "members": ["user:stranger@example.com"]},
+        {"role": "roles/logging.privateLogViewer", "members": ["serviceAccount:ect-monitor@empire-city-taxi.iam.gserviceaccount.com"]}],
+        "auditConfigs": [{"service": "iam.googleapis.com", "auditLogConfigs": [{"logType": t} for t in ("ADMIN_READ", "DATA_READ", "DATA_WRITE")]}]}
+    r = {x["check"][:6]: x for x in cc.check_iam(policy, IDS)}
+    assert r["CFG-01"]["status"] == "finding" and "roles/editor" in r["CFG-01"]["detail"]
+    assert r["CFG-02"]["status"] == "finding" and "@" not in r["CFG-02"]["detail"]
+    assert r["CFG-03"]["status"] == "finding" and "sts" in r["CFG-03"]["detail"]
+    assert cc.check_keys([{}], {"a@x": []})["status"] == "ok"
+    assert cc.check_keys([{}], {"ect-pipeline@x": [{"name": "k"}]})["status"] == "finding"
+    ds = [{"datasetReference": {"datasetId": "raw"}, "location": "US", "labels": dict.fromkeys(cc.DATASET_LABELS, "x")},
+          {"datasetReference": {"datasetId": "marts"}, "location": "US", "labels": {}, "defaultTableExpirationMs": "86400000"}]
+    assert [x["status"] for x in cc.check_datasets(ds)] == ["ok", "finding"]
+    assert cc.check_log_bucket({"retentionDays": 30})["status"] == "finding"
+    wf = {"a.yml": "steps:\n  - uses: actions/checkout@v4\n  - uses: ./local\n  - uses: x/y@" + "a" * 40 + "\n"}
+    assert cc.unpinned_actions(wf) == ["a.yml: actions/checkout@v4"]
+    r = cc.check_github([{"type": "pull_request"}], wf, None)
+    assert [x["status"] for x in r] == ["ok", "finding", "not_checked"]
+    assert cc.check_github(None, {}, True)[0]["status"] == "not_checked"
+    assert [x["status"] for x in cc.check_github([], {}, True)][1:] == ["ok", "ok"]

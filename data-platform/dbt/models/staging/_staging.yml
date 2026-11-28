@@ -39,6 +39,23 @@ models:
         data_tests:
           - accepted_values: {arguments: {values: ['confluence_comment', 'driver_app']}}
 
+  - name: stg_hris_training_completions
+    description: >
+      SIMULATED. Security awareness training completions from the Confluence course (generator 0.6.0,
+      courses open 2026-12-01): one row per passed quiz. completed_on is the New York date.
+    config: {labels: {domain: people, layer: staging, data_owner: vp-people, data_steward: hr-data-steward, classification: internal, source_system: hris, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: 7y}}
+    columns:
+      - name: completion_id
+        data_tests: [unique, not_null]
+      - name: employee_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_hris_employees'), field: employee_id}}
+      - name: course_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('training_courses'), field: course_id}}
+
   # ---------------------------------------------------------------- driver
   - name: stg_fleet_drivers
     description: Current version of each driver record in the fleet system.

@@ -43,6 +43,10 @@ sources:
         description: SIMULATED policy acknowledgments collected by HR (generator 0.5.0 onward).
         config:
           freshness: null   # only on days someone acknowledges
+      - name: hris_training_completions
+        description: SIMULATED security awareness training completions (generator 0.6.0 onward).
+        config:
+          freshness: null   # only on days someone finishes a course
       - name: gov_planted_defects
         config:
           freshness: null   # only on days with a planted defect

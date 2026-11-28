@@ -24,9 +24,74 @@ Running log of all work, decisions and open items. It's the source for progress 
 - [ ] **Knowledge Catalog (STD-02, DRAFT v0.3):** council decides D2 to D4, then the one-time import and daily extract (GOV-167), Looker Studio tables, and a DOC-02 entry. Lineage cost check on or after 2026-12-02 (GOV-168).
 - [ ] **First council meeting, Tuesday 2026-12-01** (agenda and review pack: Confluence 1015810; Jira GOV-171). After it: write the minutes, log decisions as `GV-D-###`, revise STD-02 to v0.3, move the charter to Confluence if adopted, and update the register for the 30 proposed rows.
 - [ ] **Monitoring gaps (R-003, to 2027-01-31):** the Google-side watchdog is live and tested (GOV-170 Done). The daily run starts at 05:17 UTC with backup starts at 08:17 and 11:17 UTC, which skip if today is already refreshed (2026-11-28). GitHub dropped the 11-27 run entirely. If it keeps missing days, consider starting the run from Google's side.
-- [ ] **Deadlines:** O7 log lock (GOV-94) and the first Atlassian export (GOV-158; Cloud Storage on hold), both by 2026-12-31. Treatment before expiry: GOV-161 training (01-31), GOV-154 DOC-03 and GOV-163 rebuild test (02-28). **12-09:** policy and DOC-04 acknowledgments (blog 950312; GOV-107, GOV-108).
+- [ ] **Deadlines:** O7 log lock (GOV-94; lock between 12-26 and 12-31) and the first Atlassian export (GOV-158), both by 2026-12-31. Training campaign due 2027-02-24 (R-005 expires 01-31: renew or close). Vendor due diligence (R-004) and R-008 page change control by 02-28. Done 11-28: DOC-03, rebuild test, training courses. **12-09:** policy and DOC-04 acknowledgments (blog 950312; GOV-107, GOV-108).
 - [ ] **Register approvals:** 30 rows still `proposed`. On the 12-01 agenda (item 4.3).
 - [ ] **Clean up merged branches** on GitHub (`five-tier-classification`, `governance-council`). The user asked to keep them for now.
+
+---
+
+## 2026-11-28 — First-year records: GOV-90 and GOV-81 subtasks (generator 0.6.0, checks, Confluence records)
+
+Owner, 2026-11-28: "Try to complete all subtasks under GOV-90 ... Let's try to get all subtasks under GOV-81 completed too. You have my blanket approval on everything." Non-blocking repo work goes in one combined PR (`first-year-records`).
+
+### Repo (this PR)
+- **Generator 0.6.0** (deterministic; history unchanged, checked against the 0.4.0 rebuild):
+  - training completions from 2026-12-01 (`raw.hris_training_completions`; TRN-01 staff, TRN-02 drivers, TRN-03 staff with `raw` or `staging` access; campaign due 2027-02-24, new hires 10 business days);
+  - planted defect `driver_activated_before_check` from 2026-12-01 (10% of new drivers; check HR-01);
+  - disposed records (`disposal_log.csv`) are never generated again (GOV-162; first entry DSP-0001, the 11-25 column rebuild).
+- **dbt:**
+  - `stg_hris_training_completions`, `fct_training_completions` (status, days overdue, escalation; GOV-110, GOV-161);
+  - new checks **HR-01 to HR-04** (POL-14) and **PCI-01 to PCI-03** (POL-04 st. 22 and 23; GOV-156);
+  - ACC-02 and ACC-03 lined up with POL-02's deadlines (GOV-79; live counts unchanged, 2 and 2);
+  - `fct_policy_review_status`: the monthly overdue-review check (GOV-112);
+  - `fct_compliance_findings_daily` (history) and `fct_findings_tracker`: every ACC, HR, PCI and CLS finding with owner, steward, due date and status, routed by the `finding_routing` seed (GOV-111). Run on live data with stand-ins: 306 open findings, each with an owner and due date;
+  - `fct_policy_acknowledgments`: the yearly re-acknowledgment cycle (`next_due_on`, status `expired`; GOV-107);
+  - seeds: `pci_terminals` (166), `pci_terminal_inspections` (3 terminals missed the November round), `payment_page_scripts` (SCR-04 unapproved), `training_courses` (Confluence pages), `disposal_log`, `finding_routing`, `vendor_inventory` (DOC-03 extract); `policy_register` with DOC-03, DOC-05 to DOC-09 and POL-09 v1.1;
+  - 17 classification rows (proposed) for the training tables, in the register and answer key.
+- **New commands:**
+  - `ect-config-check` (GOV-159): read-only check of IAM, keys, Data Access logs, dataset labels, log retention, the `main` ruleset, action pinning and Dependabot alerts. Monthly workflow `config-check.yml`; setup part L (owner gives `ect-monitor` 3 read roles). First run 2026-11-28: 8 ok, 2 findings (no PR rule on `main`, GOV-77; actions not pinned to commits, F14);
+  - `ect-manifest` (GOV-160): `build-tools-manifest.md`, kept current by a test.
+- **Docs and records:**
+  - `docs/rebuild-runbook.md` and `recovery-tests/2026-11-28-rebuild-test.md` (GOV-163): 8,107 rows rebuilt from tag 0.4.0 into `scratch`, 0 differences, about 2 minutes, 230 MB;
+  - SOC 2 corrections: BC-01 (rebuild, no DR region), BC-02 Partially implemented; PBC-019 Not collected, PBC-020 collected 2026-11-28;
+  - `access-control-policy.md` replaced by a pointer to POL-02 (GOV-78);
+  - vendor tool README: how its four tiers map to POL-12's three (GOV-99).
+- pytest: 39 passed. `dbt parse` and compile pass.
+
+### Confluence (created directly) [Simulated where marked]
+- **Security Training** (1114150) with TRN-01 (1015888), TRN-02 (1015904), TRN-03 (1114166), and the IR role training record (1114214; GOV-109).
+- **DOC-03 Vendor Inventory** (1015920; 14 vendors: 6 Critical, 7 High, 1 Low; GOV-154).
+- **DOC-05 Cryptography Inventory** (1048609; GOV-155). **DOC-06 Obligations Register** (950349; GOV-118).
+- **DOC-07 BIA** (950369), **DOC-08 BC/DR Plan** (1015944) with the **Manual Dispatch Procedure** (1015967), **Legal Holds and Deletion Requests** (1114198) (GOV-164).
+- **Tabletop 2026-11-28** (1015983; POL-08 and POL-15; GOV-91, run early). Confirms F6 (no IR plan, no communications lead); missed: no processor contact.
+- **2026 Annual Risk Assessment** (950389; GOV-92): new risks **R-007** (GOV-174, Medium 9) and **R-008** (GOV-175, High 12, card-entry page scripts). R-003 and R-006 re-scored to Medium; exceptions still run to expiry.
+- **DOC-09 Targeted Risk Analyses** (1114232; GOV-117).
+- **How to onboard and offboard a driver** (1114182; GOV-103).
+- **POL-09 v1.1** (minor; GOV-95): GitHub's security log covers 90 days; the Atlassian Free plan has no Jira or Confluence audit log.
+- **STD-03** (1015999) and **STD-04** (1048653) drafts v0.2 (GOV-80): numbers proposed for council item 4.4.
+- **Policy Register v20**; announcement blog 1114286 (training from 12-01; the new records).
+
+### Decisions (blanket approval)
+- **GOV-94 lock:** recommend locking `_Default` (option A) after the 30-day trial ends 2026-12-25; the owner locks it in the console (irreversible) between 12-26 and 12-31.
+- **Crypto inventory** lives in Confluence (DOC-05), not a seed.
+- **The tabletop was run early** (11-28, not May 2027). Next by 2027-11-28; the May 2027 date stays for testing the GOV-88 plan.
+
+### Corrections
+- The earlier note "no Dependabot" was wrong: Dependabot alerts have been on since 2026-11-25 (POL-10). The real gap is action pinning (F14). `ect-config-check` checks both.
+- R-006 isn't closed by the rebuild test alone: offline recovery codes (F30) and the Atlassian export (F29) remain.
+
+### Findings recorded, not fixed
+- `raw` and `staging` dataset labels still say `classification: secret` (no Secret data since 11-25).
+- Atlassian Free plan: no audit log (POL-09 st. 13 can't be met for Jira and Confluence).
+- R-005 expires 2027-01-31 but the training campaign is due 2027-02-24: renew the exception or close it on completion.
+- TRN-03 shows overdue at once for new grants (by design: training before access).
+- Creating a service account raises no alert; governance seeds aren't in the classification register (CLS-01).
+- POL-14 5.3 calls training records a "repository data file"; they're now a raw feed (needs a minor revision).
+
+### Next
+- Owner: merge the PR, then tag `generator-v0.6.0`. Setup part L (3 roles for `ect-monitor`). GOV-77 ruleset. GOV-158 export. GOV-94 lock between 12-26 and 12-31.
+- 11-29: check the first run with backup starts and the first daily comment.
+- 12-01: council (per the private script), then GOV-80 numbering, GOV-166, GOV-167, GOV-171. 12-02: GOV-168 cost check.
 
 ---
 

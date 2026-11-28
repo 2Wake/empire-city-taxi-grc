@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 # Bump when a code change alters generated output, so raw rows can be traced to the code that made them.
-GENERATOR_VERSION = "0.5.0"
+GENERATOR_VERSION = "0.6.0"
 
 # Master seed. Every random choice derives from (SEED, stream name, date), so the
 # same date always produces the same data no matter when or how often it is run.
@@ -43,6 +43,9 @@ TLC_CACHE_DIR = ROOT / ".cache" / "tlc"
 # Named employees (leaders, stewards, staff) and the access policy matrix (shared with dbt)
 ROSTER_PATH = Path(__file__).resolve().parent / "data" / "org_roster.csv"
 ACCESS_POLICY_PATH = ROOT / "dbt" / "seeds" / "governance" / "access_policy.csv"
+# POL-13 statement 16: records listed here (scope "record") are never written into a batch again, so a
+# rebuild of `raw` can't bring back data that was disposed of.
+DISPOSAL_LOG_PATH = ROOT / "dbt" / "seeds" / "governance" / "disposal_log.csv"
 
 # Daily lifecycle rates (average events per day, Poisson)
 RATES = {
@@ -95,7 +98,11 @@ DEFECT_RATES = {
     "access_not_revoked_on_termination": 0.2,
     "access_retained_after_transfer": 0.3,
     "access_expired_still_active": 0.2,
+    # from HR_DEFECTS_START (0.6.0): a new driver made active while the background check is still
+    # pending, and HR never records the result (POL-14 statement 4; check HR-01)
+    "driver_activated_before_check": 0.1,
 }
+HR_DEFECTS_START = date(2026, 12, 1)
 
 
 # Roster corrections that take effect on a given day, so history already loaded stays as it was.
@@ -133,3 +140,19 @@ ACK_WEIGHTS = {
                 2, 1.5, 1, 1, 0.8, 0.7, 0.6, 0.5, 0.5, 0.4, 0.3, 0.3, 0.2, 0.2],
 }
 ACK_NEVER = 2
+
+
+# Security awareness training (from 0.6.0; POL-14 section 5.3, decision 3(c): a Confluence course with a
+# short quiz). SIMULATED. The courses open on TRAINING_START. Staff employed then must finish by
+# TRAINING_DEADLINE (GOV-110); anyone hired later, within 10 business days of starting. TRN-03 (role
+# training) is for staff with access to `raw` or `staging` (sensitive-access roles), due before that access
+# (POL-14 statement 9). Each completion is a passed quiz (score 80 to 100).
+TRAINING_START = date(2026, 12, 1)
+TRAINING_DEADLINE = date(2027, 2, 24)
+TRAINING_COURSES = {"TRN-01": "1.0", "TRN-02": "1.0", "TRN-03": "1.0"}
+# Campaign (current staff): weight of finishing in WEEK w after TRAINING_START (week 12 holds the
+# deadline; weeks 3 and 4 are the holidays), then late weeks 13 to 17. The rest never finish.
+TRAINING_WEEK_WEIGHTS = [16, 10, 6, 3, 3, 8, 8, 7, 6, 7, 7, 6, 3, 3, 2, 1.5, 1, 0.5]
+# New hires and new sensitive access: weight of business day k after assignment (k <= 9 on time for hires).
+TRAINING_NEW_WEIGHTS = [10, 12, 12, 12, 10, 10, 8, 6, 5, 5, 2, 1.5, 1.2, 1, 0.8, 0.6, 0.5, 0.4]
+TRAINING_NEVER = 2

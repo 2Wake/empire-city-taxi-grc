@@ -1,0 +1,9 @@
+rule_prefix,owner_role,steward_role,due_business_days,route
+ACC-02,ciso,risk-data-steward,1,POL-02 st. 6: leaver access removed within 24 hours
+ACC-,ciso,risk-data-steward,5,POL-02 st. 19: access findings to the CISO and Risk Data Steward
+HR-01,vp-driver-operations,driver-data-steward,1,POL-14 st. 4: driver deactivated until the check clears
+HR-04,ciso,hr-data-steward,5,POL-14 st. 10: CISO decides on suspending sensitive access
+HR-,vp-people,hr-data-steward,5,POL-14: HR records corrected by the HR Data Steward
+PCI-01,vp-driver-operations,finance-data-steward,10,POL-04 st. 22: terminal inspected
+PCI-,vp-engineering,finance-data-steward,5,POL-04 st. 23: script approved or removed; weekly check run
+CLS-,column-owner,column-steward,20,POL-03 compliance st. 1-2: the column's data owner and steward (from the register); reviewed monthly by the council

@@ -64,6 +64,93 @@ seeds:
           - not_null
           - accepted_values:
               arguments: {values: [draft, in_review, approved, retired]}
+  - name: disposal_log
+    description: >
+      POL-13 statement 16 disposal log: what was disposed of, how much, from where, how, when, by whom,
+      the data owner's approval and the reason. Records with scope "record" are filtered out of every
+      future batch by the generator, so a rebuild of raw never brings them back (GOV-162).
+    config:
+      column_types: {disposed_on: date, approved_on: date, row_count: int64}
+      labels: {domain: governance, layer: staging, data_owner: general-counsel, data_steward: data-governance-manager, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}
+    columns:
+      - name: disposal_id
+        data_tests: [unique, not_null]
+      - name: scope
+        data_tests:
+          - accepted_values: {arguments: {values: [record, column, table]}}
+  - name: pci_terminals
+    description: >
+      SIMULATED. POL-04 statement 22 terminal list: every in-cab card terminal (model, serial number, cab),
+      plus spares. Owner: VP Driver Operations. GOV-156.
+    config:
+      column_types: {installed_on: date}
+      labels: {domain: finance, layer: staging, data_owner: cfo, data_steward: finance-data-steward, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "true", retention: indefinite}
+    columns:
+      - name: terminal_id
+        data_tests: [unique, not_null]
+      - name: serial_number
+        data_tests: [unique, not_null]
+  - name: pci_terminal_inspections
+    description: >
+      SIMULATED. POL-04 statement 22: fleet staff inspect every terminal for tampering or substitution at
+      least every 6 months. One row per inspection. Planted gap: three terminals missed the November round
+      (check PCI-01). GOV-156.
+    config:
+      column_types: {inspected_on: date}
+      labels: {domain: finance, layer: staging, data_owner: cfo, data_steward: finance-data-steward, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "true", retention: indefinite}
+    columns:
+      - name: inspection_id
+        data_tests: [unique, not_null]
+      - name: terminal_id
+        data_tests:
+          - relationships: {arguments: {to: ref('pci_terminals'), field: terminal_id}}
+      - name: result
+        data_tests:
+          - accepted_values: {arguments: {values: [pass, tamper_suspected, substituted]}}
+  - name: payment_page_scripts
+    description: >
+      SIMULATED. POL-04 statement 23 (PCI DSS 6.4.3, 11.6.1): every script on the rider app's card-entry
+      page, its purpose and approval, and the last weekly change check. Planted gap: a marketing tag added
+      without approval (check PCI-02). Owner: VP Engineering. GOV-156.
+    config:
+      column_types: {approved_on: date, last_change_check_on: date}
+      labels: {domain: finance, layer: staging, data_owner: cfo, data_steward: finance-data-steward, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "true", retention: indefinite}
+    columns:
+      - name: script_id
+        data_tests: [unique, not_null]
+  - name: vendor_inventory
+    description: >
+      Extract of DOC-03 Vendor Inventory (Confluence page 1015920; GOV-154). The page is the record; this copy
+      is never edited on its own. Tiers follow POL-12 5.1. Simulated vendors are flagged.
+    config:
+      column_types: {next_review: date}
+      labels: {domain: risk, layer: staging, data_owner: ciso, data_steward: risk-data-steward, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}
+    columns:
+      - name: vendor_id
+        data_tests: [unique, not_null]
+      - name: tier
+        data_tests:
+          - accepted_values: {arguments: {values: [critical, high, low]}}
+  - name: finding_routing
+    description: >
+      Who acts on each kind of compliance finding and within how many business days (GOV-111). The longest
+      matching rule_prefix wins. column-owner and column-steward mean the column's own owner and steward
+      from the classification register.
+    config:
+      labels: {domain: governance, layer: staging, data_owner: data-governance-manager, data_steward: data-governance-manager, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}
+    columns:
+      - name: rule_prefix
+        data_tests: [unique, not_null]
+  - name: training_courses
+    description: >
+      Security awareness training courses (POL-14 section 5.3, decision 3(c): Confluence courses with a
+      short quiz). Audience, version, launch date, refresher period and pass mark. GOV-110.
+    config:
+      column_types: {version: string, launched_on: date}
+      labels: {domain: people, layer: staging, data_owner: vp-people, data_steward: hr-data-steward, classification: internal, source_system: governance, data_origin: synthetic, contains_pii: "false", pci_scope: "false", retention: indefinite}
+    columns:
+      - name: course_id
+        data_tests: [unique, not_null]
   - name: policy_ack_deadlines
     description: >
       Acknowledgment deadlines set in staff announcements (Confluence blog posts), one row per policy

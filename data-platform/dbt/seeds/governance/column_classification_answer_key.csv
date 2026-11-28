@@ -541,3 +541,20 @@ staging,stg_hris_policy_acknowledgments,evidence,Internal,Operational,inherited,
 staging,stg_hris_policy_acknowledgments,_batch_date,Internal,Pipeline metadata,inherited,Load metadata
 staging,stg_hris_policy_acknowledgments,_generator_version,Internal,Pipeline metadata,inherited,Load metadata
 staging,stg_hris_policy_acknowledgments,acknowledged_on,Internal,Operational,derived,New York date of acknowledged_at
+raw,hris_training_completions,completion_id,Internal,Identifier,source,Surrogate key
+raw,hris_training_completions,employee_id,Internal,Identifier (FK),source,Links to employees
+raw,hris_training_completions,course_id,Internal,Reference,source,Training course
+raw,hris_training_completions,course_version,Internal,Reference,source,Course version completed
+raw,hris_training_completions,completed_at,Internal,Operational,source,When the quiz was passed
+raw,hris_training_completions,score,Internal,Operational,source,Quiz score; not a performance rating
+raw,hris_training_completions,_batch_date,Internal,Pipeline metadata,source,Load metadata
+raw,hris_training_completions,_generator_version,Internal,Pipeline metadata,source,Load metadata
+staging,stg_hris_training_completions,completion_id,Internal,Identifier,inherited,Surrogate key
+staging,stg_hris_training_completions,employee_id,Internal,Identifier (FK),inherited,Links to employees
+staging,stg_hris_training_completions,course_id,Internal,Reference,inherited,Training course
+staging,stg_hris_training_completions,course_version,Internal,Reference,inherited,Course version completed
+staging,stg_hris_training_completions,completed_at,Internal,Operational,inherited,When the quiz was passed
+staging,stg_hris_training_completions,score,Internal,Operational,inherited,Quiz score; not a performance rating
+staging,stg_hris_training_completions,_batch_date,Internal,Pipeline metadata,inherited,Load metadata
+staging,stg_hris_training_completions,_generator_version,Internal,Pipeline metadata,inherited,Load metadata
+staging,stg_hris_training_completions,completed_on,Internal,Operational,derived,New York date of completed_at

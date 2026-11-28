@@ -17,8 +17,8 @@ VM-01,Vulnerability & Change,Vulnerability management,CC7.1,A.8.8,"RA-5, SI-2",S
 VM-02,Vulnerability & Change,Penetration testing,CC4.1,A.8.8,"CA-8, RA-5",GRC Lead,Inspection,Annual,Implemented
 IR-01,Incident Response,Incident response plan,"CC7.4, CC7.5","A.5.24, A.5.26","IR-1, IR-4, IR-8",Security Eng,"Inspection, Observation",Annual,Implemented
 IR-02,Incident Response,Breach notification,CC7.4,"A.5.26, A.5.34",IR-6,GRC Lead,Inspection,Annual,Implemented
-BC-01,Resilience,Business continuity and DR,"A1.2, A1.3","A.5.29, A.5.30","CP-2, CP-4",Platform/SRE,"Inspection, Observation",Annual,Partially implemented
-BC-02,Resilience,Backup and restoration,A1.2,A.8.13,"CP-9, CP-10",Platform/SRE,"Inspection, Reperformance",Quarterly,Implemented
+BC-01,Resilience,Business continuity and recovery by rebuild (no DR region; POL-15 v1.0),"A1.2, A1.3","A.5.29, A.5.30","CP-2, CP-4",Platform/SRE,"Inspection, Observation",Annual,Partially implemented
+BC-02,Resilience,Rebuild of the data platform from versioned code (restore test),A1.2,A.8.13,"CP-9, CP-10",Platform/SRE,"Inspection, Reperformance",Annual,Partially implemented
 DP-01,Data Protection,Data classification and handling,CC3.2,"A.5.12, A.5.13","RA-2, MP-3",GRC Lead,Inspection,Annual,Partially implemented
 DP-02,Data Protection,Data retention and disposal,CC6.5,"A.5.10, A.8.10","SI-12, MP-6",GRC Lead,Inspection,Annual,Not started
 PRV-01,Privacy,Privacy and consent,"P1.1, P3.1, P5.1",A.5.34,"PT-1, PT-5",Privacy/Legal,Inspection,Annual,Implemented

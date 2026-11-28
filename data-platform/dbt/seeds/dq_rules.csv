@@ -23,9 +23,16 @@ REF-01,Uniqueness,tlc_taxi_zones,zone_id,Medium,Unique (later copies flagged),re
 REF-02,Integrity,app_trips,pickup_location_id,Medium,Zone exists in the zone reference table,real,
 REF-03,Integrity,app_trips,dropoff_location_id,Medium,Zone exists in the zone reference table,real,
 ACC-01,Access,iam_access_grants,dataset,High,Active grant is allowed by the access policy matrix,planted,access_exceeds_policy
-ACC-02,Access,iam_access_grants,grant_status,High,Access revoked when the employee leaves,planted,access_not_revoked_on_termination
-ACC-03,Access,iam_access_grants,grant_status,High,Access revoked when the employee changes department,planted,access_retained_after_transfer
+ACC-02,Access,iam_access_grants,grant_status,High,Access revoked within 24 hours of the employee leaving (POL-02 st. 6),planted,access_not_revoked_on_termination
+ACC-03,Access,iam_access_grants,grant_status,High,Access no longer needed revoked within 5 business days of a department change (POL-02 st. 7),planted,access_retained_after_transfer
 ACC-04,Access,iam_access_grants,approved_by,High,Not approved by the person receiving access,planted,access_self_approved
 ACC-05,Access,iam_access_grants,expires_at,High,Time-bound access ends at its expiry date,planted,access_expired_still_active
 ACC-06,Access,iam_access_grants,approved_by,Medium,Approval and request ticket recorded,planted,access_missing_approval
 ACC-07,Access,iam_access_grants,approved_by,Medium,Approved by the role the policy names,planted,access_wrong_approver
+HR-01,Compliance,fleet_drivers,background_check_status,High,Active drivers have a cleared background check (POL-14 st. 4),planted,driver_activated_before_check
+HR-02,Compliance,hris_employees,screening_status,High,Staff with raw or staging access are screened and cleared (POL-14 st. 2),control,
+HR-03,Compliance,hris_employees,confidentiality_agreed_on,Medium,Confidentiality terms agreed on or before the start date (POL-14 st. 6),control,
+HR-04,Compliance,hris_training_completions,completed_at,Medium,Security training no more than 30 days overdue (POL-14 st. 10),control,
+PCI-01,Compliance,pci_terminals,terminal_id,High,In-service terminals inspected within 6 months (POL-04 st. 22),control,
+PCI-02,Compliance,payment_page_scripts,approved_by,High,Every card-entry page script approved (POL-04 st. 23),control,
+PCI-03,Compliance,payment_page_scripts,last_change_check_on,Medium,Card-entry page checked for changes at least weekly (POL-04 st. 23),control,

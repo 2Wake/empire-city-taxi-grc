@@ -122,6 +122,34 @@ The tool loads with *CloudPay Analytics* — inherent inputs: **Data = 3 (Confid
 
 ---
 
+## How the tool's tiers map to POL-12 (GOV-99)
+
+ECT's [POL-12 Vendor & Third-Party Risk Management Policy](https://empire-city-taxi.atlassian.net/wiki/spaces/ECTG/pages/426423) (approved 2026-11-25) uses **three** tiers: Critical, High and Low. Each vendor gets the **highest tier that any one criterion reaches**, not a weighted average. This tool scores **four** inherent tiers from a weighted average. **POL-12 decides a vendor's tier for ECT. The tool's inherent tier is supporting analysis only.** Use this table to read the tool's three inputs as a POL-12 tier:
+
+| Tool input | Rating | POL-12 tier this input alone reaches |
+|---|---|---|
+| Data sensitivity | 4 Secret (SSN, cardholder, credentials) | **Critical** |
+| | 3 Confidential (PII) | **High** |
+| | 2 "Internal / Sensitive" | **High if Sensitive**, Low if only Internal (see note 1) |
+| | 1 Public / none | Low |
+| System access | 4 Privileged / administrative | **Critical** (admin to production or identity) |
+| | 3 Application / system | **High** (can change ECT systems or data) |
+| | 2 Limited / read-only | **High**, conservatively (see note 2) |
+| | 1 None | Low |
+| Business criticality | 4 Mission-critical (rides or payments stop > 24 h) | **Critical** |
+| | 3 High (a key service stops 4 to 24 h) | **High** |
+| | 1 to 2 Low / Moderate | Low |
+
+**POL-12 tier = the highest tier in the right-hand column across the three inputs.** Then apply the POL-12 extras the tool doesn't ask about: a vendor in DOC-01 scope (a PCI service provider) is Critical, and a vendor holding ECT's security and compliance records is High.
+
+**Using the tool's other outputs:** the control score, residual risk and gap list support the due diligence that POL-12 5.2 requires for Critical and High vendors (the questionnaire, then a POL-06 risk assessment). A residual risk of High or Critical must be fixed or accepted under POL-06 before onboarding (POL-12 statement 8). The tool's "Moderate" has no equivalent in POL-12: read it as a POL-06 risk to score, not as a vendor tier.
+
+**Example:** the sample vendor (data 3, access 3, criticality 3) is **High** in both the tool and POL-12. A vendor with data 4 and access 1, criticality 1 scores 2.2, which is **Moderate** in the tool. Under POL-12 it is **Critical** (Secret data). This is why the policy, not the weighted score, sets the tier.
+
+Notes (gaps recorded, not changed in the tool):
+1. The tool's rating 2 combines Internal and Sensitive. POL-12 treats them differently (Sensitive is High, Internal is Low). Ask which applies.
+2. POL-12's Low tier requires "no access to ECT systems", and High lists "can change ECT systems or data". Read-only access fits neither row exactly. This mapping treats it as High until POL-12's next revision settles it.
+
 ## Limitations
 
 - A questionnaire result is **self-reported**; weight independent evidence (SOC 2 Type II, pen-test reports, certifications) more heavily. See the [questionnaire reference guide](../README.md).

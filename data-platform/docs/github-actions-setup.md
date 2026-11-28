@@ -279,3 +279,39 @@ line break at the end of the token. If posting fails with `HTTPError`, re-create
 acknowledgments (simulated)" should end with `Comment: Posted: comment <number> on blog 950312`, and
 the comment should appear at the bottom of the blog post. A second run on the same day says
 "Already posted today" and doesn't post again.
+
+## L. The monthly configuration check (read-only)
+
+`.github/workflows/config-check.yml` runs `ect-config-check` on the 1st of each month as the log reader
+account `ect-monitor`. It compares IAM roles, service account keys, the Data Access audit settings,
+dataset labels and expiry, log retention, the `main` ruleset, action pinning and Dependabot alerts with the policies. Then it commits
+`data-platform/config-checks/<date>.md`. It only reads. Findings are recorded, never fixed by it.
+
+### L1. Give `ect-monitor` read access (three roles)
+
+Google Cloud console → **IAM & Admin → IAM** → find `ect-monitor@empire-city-taxi.iam.gserviceaccount.com` →
+pencil icon (**Edit principal**) → **Add another role**, three times:
+
+| Role | Why |
+|---|---|
+| **Security Reviewer** | read the project's IAM policy and list service account keys |
+| **Logs Viewer** | read the `_Default` log bucket's retention |
+| **BigQuery Metadata Viewer** | read dataset labels and settings (no table data) |
+
+Keep **Private Logs Viewer**, which it already has. Click **Save**. Easy mistake: choose "Security Reviewer",
+not "Security Admin" (Admin can change settings).
+
+These three roles are expected by the check itself (`EXPECTED_PROJECT_BINDINGS`), so they won't show as findings.
+Record the change in Jira GOV-159 (POL-07 5.9).
+
+### L2. Test it
+
+GitHub → **Actions → Monthly configuration check → Run workflow**. The new file in
+`data-platform/config-checks/` should show the checks as `ok` or `finding`. One check is always
+`not_checked` in GitHub Actions: CFG-09 (Dependabot alerts on), because the workflow's token can't read that
+setting. It is checked when the maintainer runs `uv run ect-config-check` locally. Until GOV-77 (ruleset) is set
+up and the actions are pinned to commits (finding F14, GOV-126), the run ends red with 2 findings. That's
+expected, and it's the evidence.
+
+**Allowed direct pushes to `main`:** the daily run record and this monthly result. The GOV-77 ruleset must let
+both through (bypass for GitHub Actions).

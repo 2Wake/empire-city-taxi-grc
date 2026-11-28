@@ -9,13 +9,14 @@
 Writes output/<date>/<table>.jsonl plus manifest.json (row counts and SHA-256 hashes).
 """
 import argparse
+import csv
 import hashlib
 import json
 import shutil
 from datetime import date, datetime, timedelta
 
 from . import tlc
-from .config import EPOCH, GENERATOR_VERSION, OUTPUT_DIR, tlc_date_for
+from .config import DISPOSAL_LOG_PATH, EPOCH, GENERATOR_VERSION, OUTPUT_DIR, tlc_date_for
 from .registry import TABLES, columns
 from .sim import NY, Simulation
 
@@ -29,19 +30,30 @@ def generate(days: list[date], with_trips: bool = True, out_dir=OUTPUT_DIR) -> d
     if with_trips:
         tlc.ensure_cached({tlc_date_for(d) for d in wanted})
     sim = Simulation()
+    disposed = disposed_records()
     results, day = {}, EPOCH
     while day <= max(wanted):
         if day in wanted:
             rows = tlc.read_day(tlc_date_for(day)) if with_trips else None
             batch = sim.step(day, emit=True, tlc_rows=rows)
-            results[day] = write_batch(day, batch, out_dir, with_trips)
+            results[day] = write_batch(day, batch, out_dir, with_trips, disposed)
         else:
             sim.step(day)
         day += timedelta(days=1)
     return results
 
 
-def write_batch(day: date, batch: dict, out_dir, with_trips: bool) -> dict:
+def disposed_records(path=DISPOSAL_LOG_PATH) -> set[tuple[str, str]]:
+    """(table, record id) pairs disposed of under POL-13 statement 16. Column- and table-level entries
+    (such as the 0.4.0 rebuild) are recorded in the log but have nothing to filter here."""
+    if not path.exists():
+        return set()
+    with open(path, newline="", encoding="utf-8") as f:
+        return {(row["table_name"], row["record_id"]) for row in csv.DictReader(f)
+                if row["scope"] == "record" and row["record_id"]}
+
+
+def write_batch(day: date, batch: dict, out_dir, with_trips: bool, disposed: set | None = None) -> dict:
     folder = out_dir / day.isoformat()
     shutil.rmtree(folder, ignore_errors=True)
     folder.mkdir(parents=True)
@@ -52,6 +64,10 @@ def write_batch(day: date, batch: dict, out_dir, with_trips: bool) -> dict:
         if not rows:
             continue
         names = [c for c, _ in columns(table)]
+        key = names[0]   # each table's first column is its record ID
+        rows = [row for row in rows if (table, str(row.get(key))) not in (disposed or set())]
+        if not rows:
+            continue
         path = folder / f"{table}.jsonl"
         with open(path, "w") as f:
             for row in rows:

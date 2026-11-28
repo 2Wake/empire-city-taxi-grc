@@ -36,6 +36,8 @@ generator (Python + Faker) ──► output/<date>/*.jsonl ──► loader ─�
 | `app_marketing_campaigns` | Marketing | Sensitive | New campaigns every ~2 weeks |
 | `app_rider_segments` | Marketing | Internal | Size estimates refresh on the 1st |
 | `gov_planted_defects` | Governance | Internal | Answer key for planted defects |
+| `hris_policy_acknowledgments` | HR | Internal | Policy acknowledgments from 2026-11-28 (0.5.0) |
+| `hris_training_completions` | HR | Internal | Security training completions from 2026-12-01 (0.6.0) |
 | `tlc_yellow_trips_sample` | NYC TLC (public) | Public | Fixed one-time copy (`sql/01_…`) |
 | `tlc_taxi_zones` | NYC TLC (public) | Public | Fixed one-time copy (`sql/02_…`) |
 
@@ -55,6 +57,8 @@ Run from this folder (`data-platform/`).
 | Write a run record (after `ect-daily` and `dbt build`) | `uv run ect-record` |
 | **Security review** (POL-09): check yesterday's audit logs for the Appendix A alerts | `uv run ect-security-review` (`--day 2026-11-24` for one day; `--check` exits 1 on alerts) |
 | **Watchdog** (POL-09): alert if today's run record is missing after 12:00 New York | `uv run ect-watchdog` |
+| **Configuration check** (POL-10 st. 4; monthly in Actions): read-only check of cloud and repository settings, writes `config-checks/<date>.md` | `uv run ect-config-check` (`--check` exits 1 on findings) |
+| **Build-tools manifest** (POL-10): regenerate `build-tools-manifest.md` after changing actions, dbt pins or `uv.lock` | `uv run ect-manifest` (`--check` to verify) |
 | Generate yesterday | `uv run ect-generate` |
 | Generate one day / a range / everything | `uv run ect-generate --date 2026-11-23` · `--start … --end …` · `--backfill` |
 | Generate without trips (offline) | add `--no-trips` |
